@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>FunctionWorkerPool </title>
+
+    <script src="FunctionWorker.js"></script>
+    <script src="FunctionWorkerPool.js"></script>
+    <script src="HandyPromise.js"></script>
+    <script src="MultiTool.js"></script>
+
+    <script>
+
+        /**
+         * @returns {Array<Float32Array>}
+         */
+        function generateTestData() {
+            const arraysCount = 30;
+            const arrayLength = 1_000_000;
+
+            const disorderlyArrays = new Array(arraysCount);
+            for (let i = 0; i < arraysCount; i++) {
+                const array = new Float32Array(arrayLength);
+                disorderlyArrays[i] = array;
+                for (let j = 0; j < arrayLength; j++)
+                    array[j] = Math.random();
+            }
+
+            return disorderlyArrays;
+        }
+
+        (async () => {
+
+            /** @type {number} */
+            let t0;
+            /** @type {Array<Float32Array>} */
+            let disorderlyArrays;
+            /** @type {Array<Float32Array>} */
+            let orderedArrays;
+
+            // basic way :
+            disorderlyArrays = generateTestData();
+            t0 = performance.now();
+
+            orderedArrays = [];
+            for (const array of disorderlyArrays)
+                orderedArrays.push(array.sort());
+
+            console.log("basic way:", performance.now() - t0);
+
+
+            // worker pool way :
+            disorderlyArrays = generateTestData();
+
+            /** @type {FunctionWorkerPool<Float32Array>} */
+            const pool = new FunctionWorkerPool(array => {
+                array.sort();
+
+                // this should increas performances but don't O_o :
+                //transferables.push(disorderlyArray.buffer);
+
+                return array;
+            });
+
+
+            t0 = performance.now();
+
+            /** @type {Array<Promise<Float32Array>>} */
+            const promises = [];
+
+            for (const array of disorderlyArrays)
+                promises.push(pool.call(array));
+
+            orderedArrays = [];
+            for (const promise of promises)
+                orderedArrays.push(await promise);
+
+            console.log("worker pool way:", performance.now() - t0);
+
+        })();
+
+    </script>
+</head>
+<body style="background-color: black;"></body>
+</html>
