@@ -40,6 +40,7 @@
 
             // basic way :
             disorderlyArrays = generateTestData();
+
             t0 = performance.now();
 
             orderedArrays = [];
@@ -52,10 +53,10 @@
             // worker pool way :
             disorderlyArrays = generateTestData();
 
+            t0 = performance.now();
+
             /** @type {FunctionWorkerPool<Float32Array>} */
             const pool = new FunctionWorkerPool(array => array.sort());
-
-            t0 = performance.now();
 
             /** @type {Array<Promise<Float32Array>>} */
             const promises = [];
@@ -67,9 +68,9 @@
             for (const promise of promises)
                 orderedArrays.push(await promise);
 
-            console.log("worker pool way:", performance.now() - t0);
-
             pool.terminate();
+
+            console.log("worker pool way:", performance.now() - t0);
 
         })();
 
