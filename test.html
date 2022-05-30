@@ -69,6 +69,8 @@
 
             console.log("worker pool way:", performance.now() - t0);
 
+            pool.terminate();
+
         })();
 
     </script>
