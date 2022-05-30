@@ -53,15 +53,7 @@
             disorderlyArrays = generateTestData();
 
             /** @type {FunctionWorkerPool<Float32Array>} */
-            const pool = new FunctionWorkerPool(array => {
-                array.sort();
-
-                // this should increas performances but don't O_o :
-                //transferables.push(disorderlyArray.buffer);
-
-                return array;
-            });
-
+            const pool = new FunctionWorkerPool(array => array.sort());
 
             t0 = performance.now();
 
