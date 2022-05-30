@@ -10,16 +10,13 @@ class FunctionWorker extends Worker {
      * @param {number} [id]
      */
     constructor(fun, id) {
+        let workerOnmessage = FunctionWorker.workerOnmessage.toString();
+        workerOnmessage = workerOnmessage.replace("customFunction", fun.toString());
+
         super(URL.createObjectURL(new Blob([
-            "\"use strict\";\n",
-            "\n",
-            "globalThis.workerId = " + id + ";\n",
-            "\n",
-            "function call(callId, transferables, args) {\n",
-            "    return (" + fun + ")(...args);\n",
-            "}\n",
-            "\n",
-            "globalThis.onmessage = " + FunctionWorker.workerOnmessage + "\n",
+            "\"use strict\";\n\n",
+            "const workerId = " + id + ";\n\n",
+            "globalThis.onmessage = " + workerOnmessage + ";\n\n",
         ])));
 
         /** @type {number} */
@@ -87,11 +84,14 @@ class FunctionWorker extends Worker {
         /** @type {{callId: number, args: Array}} */
         const eventData = event.data;
         const callId = eventData.callId;
+        const args = eventData.args;
 
         try {
             const transferables = [];
-            let result = call(callId, transferables, eventData.args);
 
+            const fun = customFunction;
+
+            let result = fun(...args);
             while (result instanceof Promise)
                 result = await result;
 
