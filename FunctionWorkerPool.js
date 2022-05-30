@@ -4,7 +4,7 @@
  * @template ReturnType
  */
 class FunctionWorkerPool {
-	
+
     /**
      * @param {function(any): ReturnType} fun
      * @param {number} [size]
@@ -50,13 +50,13 @@ class FunctionWorkerPool {
             return promise;
         }
     }
-    
+
     /**
      * @param {FunctionWorker<ReturnType>} worker
      */
     giveBack(worker) {
         if (this._pendingPromises.size !== 0) {
-            MultiTool.popFirstOfSet( this._pendingPromises).resolve(worker);
+            MultiTool.popFirstOfSet(this._pendingPromises).resolve(worker);
 
         } else {
             this._unavailableWokers.delete(worker);
